@@ -1,4 +1,7 @@
-# torchvision>=0.14.1
+torchvision>=0.14.1
 transformers
 accelerate
 datasets
+SentencePiece
+jinja2
+tqdm
