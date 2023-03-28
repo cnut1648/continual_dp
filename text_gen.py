@@ -26,13 +26,14 @@ def eval(model, dataset, tokenizer):
     output_dir = Path(__file__).parent / "teacher" / dataset
     os.makedirs(output_dir, exist_ok=True)
     saved = []
-    for example in tqdm(dataset_ds["train"].select(range(10))):
+    for example in tqdm(dataset_ds["train"]):
         instructed_example, answer = template.apply(example)
         input_ids = tokenizer(instructed_example, return_tensors="pt").input_ids.to("cuda")
         outputs = model.generate(input_ids)
         decoded_outputs = tokenizer.batch_decode(outputs, skip_special_tokens=True, clean_up_tokenization_spaces=True)[0]
         example["generated"] = decoded_outputs
         example["answer"] = answer
+        saved.append(example)
     # write jsonline
     with open(output_dir / "teacher.jsonl", "w") as f:
         for example in saved:
