@@ -17,7 +17,7 @@ from datasets import load_dataset
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # model_arch = "t5-small"
-model_arch = "t5-11b"
+model_arch = "t5-small"
 model = transformers.T5ForConditionalGeneration.from_pretrained(model_arch).to(device)
 tokenizer = T5Tokenizer.from_pretrained(model_arch)
 
@@ -65,7 +65,7 @@ def train(model, train_loader, test_loader, sample_size, target_epsilon, lr=1e-4
             loss = loss.mean(dim=1)
             optimizer.step(loss=loss)
 
-        print(f"loss after {e}th epoch:",loss.item())
+        #print(f"loss after {e}th epoch:",loss)
         acc_with_llm, acc_with_real = eval(model, test_loader)
         print(f"---- after {e}th epoch: acc align with llm: {acc_with_llm}, acc align with actual: {acc_with_real}")
 
@@ -125,11 +125,11 @@ def eval(model, test_loader):
             answer = data["answer"]
 
             # Version 1
-            input_ids = tokenizer( text , return_tensors="pt", padding=True, truncation=True).input_ids.to(device)
-            outputs = model.generate(input_ids)
-            #print("---out1:--- ", tokenizer.decode(outputs, skip_special_tokens=True, clean_up_tokenization_spaces=True),"----finished---\n")
-            decode_v1 = tokenizer.decode(outputs, skip_special_tokens=True, clean_up_tokenization_spaces=True)
-
+            # input_ids = tokenizer( text , return_tensors="pt", padding=True, truncation=True).input_ids.to(device)
+            # outputs = model.generate(input_ids)
+            # #print("---out1:--- ", tokenizer.decode(outputs, skip_special_tokens=True, clean_up_tokenization_spaces=True),"----finished---\n")
+            # decode_v1 = tokenizer.decode(outputs, skip_special_tokens=True, clean_up_tokenization_spaces=True)
+            # print("decode_v1 finish")
             # Version 2
             inputs = tokenizer(text, return_tensors="pt", padding=True, truncation=True).to(device)
             output_sequences = model.generate(
@@ -139,7 +139,7 @@ def eval(model, test_loader):
             ).to(device)
             #print("---out2:--- ", tokenizer.batch_decode(output_sequences, skip_special_tokens=True, clean_up_tokenization_spaces=True),"----finished---\n")
             decode_v2 = tokenizer.batch_decode(output_sequences, skip_special_tokens=True, clean_up_tokenization_spaces=True)
-            
+            print("decode_v2 finish")
             
             decoded = decode_v2
             for i in range(len(decoded)):
@@ -175,7 +175,12 @@ dataset = load_dataset('json', data_files='teacher/imdb/teacher.jsonl')
 sample_size, train_loader, test_loader = get_data(dataset, batch_size)
 original_acc(dataset, sample_size)
 
-train(model, train_loader, test_loader, sample_size, target_epsilon, lr = 1e-5, batch_size = batch_size, epochs = 10, C = 10)
+print("----- before training -----")
+acc_with_llm, acc_with_real = eval(model, test_loader)
+print(f"acc align with llm: {acc_with_llm}, acc align with actual: {acc_with_real}")
+
+
+train(model, train_loader, test_loader, sample_size, target_epsilon, lr = 1e-7, batch_size = batch_size, epochs = 10, C = 10)
 print("----- finish training -----")
 acc_with_llm, acc_with_real = eval(model, test_loader)
 print(f"acc align with llm: {acc_with_llm}, acc align with actual: {acc_with_real}")
