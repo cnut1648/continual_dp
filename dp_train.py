@@ -16,8 +16,8 @@ from torch.utils.data import DataLoader, IterableDataset
 from datasets import load_dataset
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = transformers.T5ForConditionalGeneration.from_pretrained('t5-xxl').to(device)
-tokenizer = T5Tokenizer.from_pretrained("t5-xxl")
+model = transformers.T5ForConditionalGeneration.from_pretrained('t5-11b').to(device)
+tokenizer = T5Tokenizer.from_pretrained("t5-11b")
 
 def train(model, train_loader, test_loader, sample_size, target_epsilon, lr=1e-4, batch_size=32, epochs=10, C=1):
     optimizer = torch.optim.Adam(params=model.parameters(), lr=lr)
@@ -52,6 +52,7 @@ def train(model, train_loader, test_loader, sample_size, target_epsilon, lr=1e-4
             # Calling `.train()` is very important; otherwise underlying forward and backward hooks don't run.
             model.train()
             # `loss` is a 1-D tensor of shape (batch_size,).
+            # TODO check
             loss = model(input_ids=input_ids, labels=labels_ids).loss
             # loss.item()
             #print("loss",loss.item(),loss, loss.reshape(1,-1), loss.reshape(-1,1))
@@ -85,7 +86,8 @@ class text_dataset():
 
 
 def get_data(dataset, batch_size):
-
+    # TODO
+    # use test split
     data_labels=dataset["train"]["label"]
     data_text=dataset["train"]["text"]
     data_generated=dataset["train"]["generated"]
