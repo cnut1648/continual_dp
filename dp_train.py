@@ -16,8 +16,10 @@ from torch.utils.data import DataLoader, IterableDataset
 from datasets import load_dataset
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = transformers.T5ForConditionalGeneration.from_pretrained('t5-11b').to(device)
-tokenizer = T5Tokenizer.from_pretrained("t5-11b")
+# model_arch = "t5-small"
+model_arch = "t5-11b"
+model = transformers.T5ForConditionalGeneration.from_pretrained(model_arch).to(device)
+tokenizer = T5Tokenizer.from_pretrained(model_arch)
 
 def train(model, train_loader, test_loader, sample_size, target_epsilon, lr=1e-4, batch_size=32, epochs=10, C=1):
     optimizer = torch.optim.Adam(params=model.parameters(), lr=lr)
@@ -45,19 +47,23 @@ def train(model, train_loader, test_loader, sample_size, target_epsilon, lr=1e-4
 
             # print("text shape", type(text), len(text), len(text[0]), len(text[1]),len(text[3]))
             # print("gen shape", type(generated), len(generated), len(generated[0]))
-            input_ids = tokenizer( text , return_tensors="pt", padding=True, truncation=True ).input_ids.to(device)
+            inputs = tokenizer( text , return_tensors="pt", padding=True, truncation=True ).to(device)
             labels_ids = tokenizer( generated, return_tensors="pt", padding=True, truncation=True).input_ids.to(device)
+            # labels_ids = model._shift_right(labels_ids)
 
 
             # Calling `.train()` is very important; otherwise underlying forward and backward hooks don't run.
             model.train()
             # `loss` is a 1-D tensor of shape (batch_size,).
             # TODO check
-            loss = model(input_ids=input_ids, labels=labels_ids).loss
-            # loss.item()
-            #print("loss",loss.item(),loss, loss.reshape(1,-1), loss.reshape(-1,1))
-
-            optimizer.step(loss= loss.reshape(1,) )
+            outputs = model(**inputs, labels=labels_ids)
+            # , labels=labels_ids)
+            # (bsz, target_seq_len, |V|)
+            logits = outputs.logits
+            # CE(x=(bsz, |V|, target_seq_len), y=(bsz, target_seq_len)) => (bsz, target_seq_len)
+            loss = F.cross_entropy(logits.permute(0, 2, 1), labels_ids, ignore_index=-100, reduction="none")
+            loss = loss.mean(dim=1)
+            optimizer.step(loss=loss)
 
         print(f"loss after {e}th epoch:",loss.item())
         acc_with_llm, acc_with_real = eval(model, test_loader)
