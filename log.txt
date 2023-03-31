@@ -5,42 +5,18 @@ For now, this behavior is kept to avoid breaking backwards compatibility when pa
 - To avoid this warning, please instantiate this tokenizer with `model_max_length` set to your preferred value.
   warnings.warn(
 Found cached dataset json (/n/home00/phliu/.cache/huggingface/datasets/json/default-2c4095df8794ee13/0.0.0/0f7e3662623656454fcd2b650f34e886a7db4b9104504885bd462096cc7a9f51)
-  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 100.46it/s]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 87.31it/s]
 /n/home00/phliu/miniconda3/lib/python3.10/site-packages/transformers/generation/utils.py:1288: UserWarning: Using `max_length`'s default (20) to control the generation length. This behaviour is deprecated and will be removed from the config in v5 of Transformers -- we recommend using `max_new_tokens` to control the maximum length of the generation.
   warnings.warn(
-/n/home00/phliu/miniconda3/lib/python3.10/site-packages/torch/nn/modules/module.py:1344: UserWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
-  warnings.warn("Using a non-full backward hook when the forward contains multiple autograd Nodes "
 Traceback (most recent call last):
-  File "/n/home00/phliu/continual_dp/dp_train.py", line 183, in <module>
-    train(model, train_loader, test_loader, sample_size, target_epsilon, lr = 1e-7, batch_size = batch_size, epochs = 10, C = 10)
-  File "/n/home00/phliu/continual_dp/dp_train.py", line 69, in train
-    acc_with_llm, acc_with_real = eval(model, test_loader)
-  File "/n/home00/phliu/miniconda3/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 115, in decorate_context
-    return func(*args, **kwargs)
-  File "/n/home00/phliu/continual_dp/dp_train.py", line 135, in eval
-    output_sequences = model.generate(
-  File "/n/home00/phliu/miniconda3/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 115, in decorate_context
-    return func(*args, **kwargs)
-  File "/n/home00/phliu/miniconda3/lib/python3.10/site-packages/transformers/generation/utils.py", line 1268, in generate
-    model_kwargs = self._prepare_encoder_decoder_kwargs_for_generation(
-  File "/n/home00/phliu/miniconda3/lib/python3.10/site-packages/transformers/generation/utils.py", line 634, in _prepare_encoder_decoder_kwargs_for_generation
-    model_kwargs["encoder_outputs"]: ModelOutput = encoder(**encoder_kwargs)
-  File "/n/home00/phliu/miniconda3/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "/n/home00/phliu/miniconda3/lib/python3.10/site-packages/transformers/models/t5/modeling_t5.py", line 1074, in forward
-    layer_outputs = layer_module(
-  File "/n/home00/phliu/miniconda3/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "/n/home00/phliu/miniconda3/lib/python3.10/site-packages/transformers/models/t5/modeling_t5.py", line 693, in forward
-    self_attention_outputs = self.layer[0](
-  File "/n/home00/phliu/miniconda3/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "/n/home00/phliu/miniconda3/lib/python3.10/site-packages/transformers/models/t5/modeling_t5.py", line 600, in forward
-    attention_output = self.SelfAttention(
-  File "/n/home00/phliu/miniconda3/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "/n/home00/phliu/miniconda3/lib/python3.10/site-packages/private_transformers/transformers_support.py", line 576, in new_forward
-    attn_weights = nn.functional.dropout(
-  File "/n/home00/phliu/miniconda3/lib/python3.10/site-packages/torch/nn/functional.py", line 1252, in dropout
-    return _VF.dropout_(input, p, training) if inplace else _VF.dropout(input, p, training)
-torch.cuda.OutOfMemoryError: CUDA out of memory. Tried to allocate 512.00 MiB (GPU 0; 79.21 GiB total capacity; 77.32 GiB already allocated; 181.06 MiB free; 77.85 GiB reserved in total by PyTorch) If reserved memory is >> allocated memory try setting max_split_size_mb to avoid fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF
+  File "/n/home00/phliu/continual_dp/np_train.py", line 186, in <module>
+    train(model, train_loader, test_loader, sample_size, target_epsilon, lr = 1e-7, batch_size = batch_size, epochs = 10, C = 1000)
+  File "/n/home00/phliu/continual_dp/np_train.py", line 68, in train
+    loss.backward()
+  File "/n/home00/phliu/miniconda3/lib/python3.10/site-packages/torch/_tensor.py", line 487, in backward
+    torch.autograd.backward(
+  File "/n/home00/phliu/miniconda3/lib/python3.10/site-packages/torch/autograd/__init__.py", line 193, in backward
+    grad_tensors_ = _make_grads(tensors, grad_tensors_, is_grads_batched=False)
+  File "/n/home00/phliu/miniconda3/lib/python3.10/site-packages/torch/autograd/__init__.py", line 88, in _make_grads
+    raise RuntimeError("grad can be implicitly created only for scalar outputs")
+RuntimeError: grad can be implicitly created only for scalar outputs

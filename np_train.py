@@ -23,19 +23,21 @@ tokenizer = T5Tokenizer.from_pretrained(model_arch)
 
 def train(model, train_loader, test_loader, sample_size, target_epsilon, lr=1e-4, batch_size=32, epochs=10, C=1):
     optimizer = torch.optim.Adam(params=model.parameters(), lr=lr)
-    privacy_engine = PrivacyEngine(
-        model,
-        batch_size=batch_size,
-        sample_size=sample_size,
-        epochs=epochs,
-        max_grad_norm=C,
-        target_epsilon=target_epsilon,
-    )
-    privacy_engine.attach(optimizer)
+    
+    # privacy_engine = PrivacyEngine(
+    #     model,
+    #     batch_size=batch_size,
+    #     sample_size=sample_size,
+    #     epochs=epochs,
+    #     max_grad_norm=C,
+    #     target_epsilon=target_epsilon,
+    # )
+    # privacy_engine.attach(optimizer)
 
     for e in range(epochs):
         print(f"-----{e}^th epoch ------")
         for batch_idx, data in enumerate(train_loader):
+            optimizer.zero_grad()
             text = data["text"]
             labels = data["labels"]
             generated = data["generated"]
@@ -53,7 +55,7 @@ def train(model, train_loader, test_loader, sample_size, target_epsilon, lr=1e-4
 
 
             # Calling `.train()` is very important; otherwise underlying forward and backward hooks don't run.
-            model.train()
+            # model.train()
             # `loss` is a 1-D tensor of shape (batch_size,).
             # TODO check
             outputs = model(**inputs, labels=labels_ids)
@@ -63,7 +65,8 @@ def train(model, train_loader, test_loader, sample_size, target_epsilon, lr=1e-4
             # CE(x=(bsz, |V|, target_seq_len), y=(bsz, target_seq_len)) => (bsz, target_seq_len)
             loss = F.cross_entropy(logits.permute(0, 2, 1), labels_ids, ignore_index=-100, reduction="none")
             loss = loss.mean(dim=1)
-            optimizer.step(loss=loss)
+            loss.backward()
+            optimizer.step()
 
         #print(f"loss after {e}th epoch:",loss)
         acc_with_llm, acc_with_real = eval(model, test_loader)
