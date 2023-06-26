@@ -21,7 +21,7 @@ for shot in 0 1 5; do
             --tasks $task \
             --batch_size 64 \
             --device auto \
-            --output_path results_s/$fingerprinted_model/$task/$shot.json \
+            --output_path results_s/alpaca-lora-vanilla/$task/$shot.json \
             --num_fewshot $shot
     done;
 done;
