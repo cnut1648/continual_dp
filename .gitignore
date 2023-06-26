@@ -130,3 +130,5 @@ dmypy.json
 teacher
 .vscode
 private-transformers
+lora-alpaca
+lm-evaluation-harness

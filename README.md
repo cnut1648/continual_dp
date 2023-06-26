@@ -16,6 +16,15 @@ pip install git+https://github.com/lxuechen/private-transformers.git
 
 Rest of the requirements can be installed via `pip install -r requirements.txt`. 
 
+## Evaluation
+
+Use LLM Harness:
+```shell
+git clone https://github.com/EleutherAI/lm-evaluation-harness.git
+pip install openai pycountry pytablewriter rouge-score sacrebleu scikit-learn sqlitedict omegaconf sentencepiece
+```
+
+Unzip `lora-alpaca` and run `./eval.sh`. You might need to change `batch_size`
 
 ## Commands
 
